@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>藏品数字图库管理系统 - 博物馆官方平台</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"微软雅黑",sans-serif;}
+        :root{
+            --main:#1A3355;
+            --gold:#D4AF37;
+            --light:#f5f7fa;
+            --gray:#666;
+            --border:#eee;
+        }
+        body{background:#f8f9fa;color:#333;}
+        a{text-decoration:none;}
+        ul{list-style:none;}
+
+        header{background:var(--main);position:sticky;top:0;z-index:999;box-shadow:0 2px 10px #0002;}
+        .head-wrap{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:70px;}
+        .logo{color:#fff;font-size:20px;font-weight:bold;}
+        .nav-list{display:flex;gap:35px;}
+        .nav-list li a{color:#fff;font-size:15px;opacity:0.9;transition:.3s;}
+        .nav-list li a:hover{color:var(--gold);opacity:1;}
+
+        .banner{width:100%;height:420px;background:
+            linear-gradient(rgba(26,51,85,.72),rgba(26,51,85,.72)),
+            url("https://picsum.photos/id/1036/1920/800") center/cover no-repeat;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;
+        }
+        .banner h1{font-size:42px;margin-bottom:12px;}
+        .banner p{font-size:16px;opacity:0.9;}
+
+        .container{max-width:1200px;margin:0 auto;padding:60px 20px;}
+        .title-box{display:flex;align-items:center;margin-bottom:30px;}
+        .title-line{width:4px;height:22px;background:var(--gold);margin-right:12px;}
+        .title-text{font-size:24px;color:var(--main);font-weight:bold;}
+
+        .search-bar{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 12px #000008;margin-bottom:30px;display:flex;gap:15px;align-items:center;flex-wrap:wrap;}
+        .search-bar input,.search-bar select{border:1px solid var(--border);padding:10px 15px;border-radius:4px;outline:none;flex:1;min-width:200px;}
+        .btn{padding:10px 22px;border:none;border-radius:4px;cursor:pointer;transition:.3s;}
+        .btn-main{background:var(--main);color:#fff;}
+        .btn-main:hover{background:#244470;}
+        .btn-gold{background:var(--gold);color:#fff;}
+
+        .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:25px;}
+        .gallery-card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 3px 15px #00000a;transition:.3s;cursor:pointer;}
+        .gallery-card:hover{transform:translateY(-6px);}
+        .gallery-card img{width:100%;height:200px;object-fit:cover;}
+        .card-body{padding:16px;}
+        .card-title{font-size:16px;color:var(--main);font-weight:bold;margin-bottom:8px;}
+        .card-desc{font-size:13px;color:var(--gray);line-height:1.6;}
+        .card-tag{display:inline-block;margin-top:10px;padding:3px 8px;background:var(--light);color:var(--main);font-size:12px;border-radius:3px;}
+
+        .news-wrap{background:#fff;padding:30px;border-radius:8px;box-shadow:0 2px 12px #000008;margin:50px 0;}
+        .news-item{padding:15px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+        .news-item:last-child{border:none;}
+        .news-date{color:#999;font-size:13px;}
+
+        .admin-entry{background:var(--light);padding:30px;border-radius:8px;text-align:center;}
+        .admin-entry p{color:var(--gray);margin:15px 0 25px;}
+
+        footer{background:var(--main);color:#aaa;text-align:center;padding:40px 20px;margin-top:40px;font-size:14px;}
+
+        .mask{position:fixed;top:0;left:0;width:100%;height:100%;background:#0006;display:none;align-items:center;justify-content:center;z-index:9999;}
+        .popup{width:90%;max-width:520px;background:#fff;border-radius:10px;padding:30px;}
+        .popup h3{margin-bottom:20px;color:var(--main);}
+        .form-item{margin-bottom:18px;}
+        .form-item label{display:block;margin-bottom:6px;color:#333;}
+        .form-item input,.form-item textarea,.form-item select{width:100%;border:1px solid #ddd;padding:10px;border-radius:4px;outline:none;}
+        .btn-group{display:flex;gap:12px;margin-top:20px;justify-content:flex-end;}
+
+        .admin-page{display:none;}
+        .stat-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+        .stat-card{background:#fff;padding:20px;border-radius:8px;text-align:center;box-shadow:0 2px 8px #000008;}
+        .stat-num{font-size:28px;color:var(--main);font-weight:bold;}
+        .table-box{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px #000008;}
+        table{width:100%;border-collapse:collapse;}
+        th,td{padding:12px 15px;text-align:center;border-bottom:1px solid #eee;font-size:14px;}
+        th{background:var(--light);color:var(--main);}
+        .oper-btn{padding:5px 10px;font-size:12px;border-radius:3px;margin:0 2px;}
+        .edit{background:#e6f0ff;color:#2468d8;}
+        .del{background:#ffebee;color:#f53f3f;}
+
+        .login-box{max-width:400px;margin:80px auto;background:#fff;padding:40px;border-radius:10px;box-shadow:0 5px 20px #000015;display:none;}
+        .login-box h2{text-align:center;color:var(--main);margin-bottom:30px;}
+
+        #preview{margin-top:10px;max-width:200px;max-height:150px;display:none;border:1px solid #ddd;border-radius:4px;}
+
+        .detail-page{display:none;padding:40px 20px;max-width:900px;margin:0 auto;}
+        .detail-wrap{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 20px #000008;}
+        .detail-img{width:100%;max-height:500px;object-fit:contain;background:#f5f5f5;}
+        .detail-info{padding:30px;}
+        .detail-title{font-size:28px;color:var(--main);margin-bottom:10px;}
+        .detail-cate{display:inline-block;padding:6px 12px;background:var(--light);color:var(--main);border-radius:6px;margin-bottom:20px;}
+        .detail-desc{font-size:16px;line-height:1.8;color:#333;white-space:pre-line;}
+        .back-btn{margin-bottom:20px;padding:10px 20px;background:var(--main);color:#fff;border:none;border-radius:6px;cursor:pointer;}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="head-wrap">
+        <div class="logo">藏品数字图库管理系统</div>
+        <ul class="nav-list">
+            <li><a href="javascript:goIndex()">首页</a></li>
+            <li><a href="javascript:goIndex()">藏品图库</a></li>
+            <li><a href="javascript:goIndex()">展览动态</a></li>
+            <li><a href="javascript:switchPage('login')">管理登录</a></li>
+        </ul>
+    </div>
+</header>
+
+<div id="index-page">
+    <div class="banner">
+        <h1>数字馆藏 · 文脉永续</h1>
+        <p>贵州省博物馆藏品数字化图库公共展示与管理平台</p>
+    </div>
+
+    <div class="container">
+        <div class="title-box">
+            <span class="title-line"></span>
+            <span class="title-text">藏品图库检索</span>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="key-word" placeholder="输入藏品名称、年代、类型搜索...">
+            <select id="cate-select">
+                <option value="all">全部分类</option>
+                <option value="青铜">青铜器物</option>
+                <option value="化石">古生物化石</option>
+                <option value="服饰">民族服饰</option>
+                <option value="陶瓷">陶瓷书画</option>
+            </select>
+            <button class="btn btn-main" onclick="searchGallery()">搜索图库</button>
+        </div>
+
+        <div class="title-box">
+            <span class="title-line"></span>
+            <span class="title-text">精选馆藏（点击查看详情）</span>
+        </div>
+
+        <div class="gallery-grid" id="gallery-list"></div>
+
+        <div class="news-wrap">
+            <div class="title-box" style="margin-bottom:20px">
+                <span class="title-line"></span>
+                <span class="title-text">展览动态公告</span>
+            </div>
+            <div class="news-item">
+                <span>新展预告 | 潜入珊瑚秘境，邂逅海底奇遇 七月中旬盛幕将启</span>
+                <span class="news-date">2026-07-09</span>
+            </div>
+            <div class="news-item">
+                <span>向黔看·贵博观众摄影展持续展出中（4.15-7.18）</span>
+                <span class="news-date">2026-04-15</span>
+            </div>
+            <div class="news-item">
+                <span>馆藏文物数字化扫描工程阶段性成果公示</span>
+                <span class="news-date">2026-06-20</span>
+            </div>
+        </div>
+
+        <div class="admin-entry">
+            <div class="title-box" style="justify-content:center">
+                <span class="title-line"></span>
+                <span class="title-text">平台管理中心</span>
+            </div>
+            <p>藏品录入、图库维护、展览发布、数据统计、系统管理入口</p>
+            <button class="btn btn-main" onclick="switchPage('login')">进入后台管理</button>
+        </div>
+    </div>
+</div>
+
+<div id="detail-page" class="detail-page">
+    <button class="back-btn" onclick="goIndex()">← 返回首页</button>
+    <div class="detail-wrap">
+        <img id="detail-img" class="detail-img">
+        <div class="detail-info">
+            <h2 id="detail-title" class="detail-title"></h2>
+            <span id="detail-cate" class="detail-cate"></span>
+            <div id="detail-desc" class="detail-desc"></div>
+        </div>
+    </div>
+</div>
+
+<div id="login-page" class="login-box">
+    <h2>后台管理登录</h2>
+    <div class="form-item">
+        <label>账号</label>
+        <input type="text" id="admin-user" placeholder="请输入账号" value="admin">
+    </div>
+    <div class="form-item">
+        <label>密码</label>
+        <input type="password" id="admin-pwd" placeholder="请输入密码" value="123456">
+    </div>
+    <button class="btn btn-main" style="width:100%" onclick="login()">立即登录</button>
+</div>
+
+<div id="admin-page" class="admin-page container">
+    <div class="title-box">
+        <span class="title-line"></span>
+        <span class="title-text">数据统计概览</span>
+    </div>
+    <div class="stat-box">
+        <div class="stat-card">
+            <div class="stat-num" id="total-num">0</div>
+            <div>藏品总数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">4</div>
+            <div>藏品分类</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">3</div>
+            <div>展览公告</div>
+        </div>
+    </div>
+
+    <div class="title-box">
+        <span class="title-line"></span>
+        <span class="title-text">藏品图库管理</span>
+        <button class="btn btn-gold" style="margin-left:auto" onclick="openAddPopup()">+ 新增藏品</button>
+    </div>
+
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>藏品名称</th>
+                    <th>藏品分类</th>
+                    <th>简介</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:30px;text-align:center">
+        <button class="btn btn-main" onclick="switchPage('index')">返回前台首页</button>
+    </div>
+</div>
+
+<div class="mask" id="popup-mask">
+    <div class="popup">
+        <h3 id="popup-title">新增藏品</h3>
+        <div class="form-item">
+            <label>藏品名称</label>
+            <input type="text" id="col-name" placeholder="请输入藏品名称">
+        </div>
+        <div class="form-item">
+            <label>藏品分类</label>
+            <select id="col-cate">
+                <option value="青铜">青铜器物</option>
+                <option value="化石">古生物化石</option>
+                <option value="服饰">民族服饰</option>
+                <option value="陶瓷">陶瓷书画</option>
+            </select>
+        </div>
+        <div class="form-item">
+            <label>藏品简介</label>
+            <textarea id="col-desc" rows="4" placeholder="请输入藏品介绍"></textarea>
+        </div>
+        <div class="form-item">
+            <label>上传藏品图片</label>
+            <input type="file" id="col-img-file" accept="image/*" onchange="previewImage(this)">
+            <img id="preview">
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="closePopup()">取消</button>
+            <button class="btn btn-main" onclick="saveData()">保存提交</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>藏品数字图库管理系统 © 2026 贵州省博物馆仿制版 版权所有</p>
+    <p style="margin-top:8px">咨询电话：0851-84811809 | 地址：贵阳市观山湖区林城东路107号</p>
+</footer>
+
+<script>
+let galleryData = JSON.parse(localStorage.getItem('museumData')) || [
+    {id:1,name:"西汉铜柄铁剑",cate:"青铜",desc:"汉代典型兵器，见证西南地区汉文化融合历史，馆藏一级文物。剑身保存完整，纹饰清晰，是研究汉代西南军事与文化交流的重要实物资料。",img:""},
+    {id:2,name:"胡氏贵州龙化石",cate:"化石",desc:"远古三叠纪海洋生物化石，是贵州远古生命摇篮的重要实证。化石完整度极高，骨骼纹理清晰，具有极高的科研与科普价值。",img:""},
+    {id:3,name:"鹭鸟纹彩色蜡染褶裙",cate:"服饰",desc:"贵州传统民族蜡染工艺代表作，纹样精美，民族文化特色浓郁。采用天然植物染料，手工绘制，色彩古朴典雅，展现少数民族独特审美与精湛技艺。",img:""},
+    {id:4,name:"宋龙泉窑划花高足碗",cate:"陶瓷",desc:"宋代龙泉窑经典器物，釉色温润，工艺精湛，是宋代江南瓷器入黔实证。器形规整，釉色青绿如玉，划花纹饰流畅自然，为宋代陶瓷精品。",img:""}
+];
+
+let editId = 0;
+let currentBase64 = "";
+
+function switchPage(type){
+    document.getElementById('index-page').style.display = 'none';
+    document.getElementById('detail-page').style.display = 'none';
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('admin-page').style.display = 'none';
+    if(type === 'index'){
+        document.getElementById('index-page').style.display = 'block';
+        renderGallery();
+    }
+    if(type === 'detail'){
+        document.getElementById('detail-page').style.display = 'block';
+    }
+    if(type === 'login'){
+        document.getElementById('login-page').style.display = 'block';
+    }
+    if(type === 'admin'){
+        document.getElementById('admin-page').style.display = 'block';
+        renderTable();
+        countStat();
+    }
+}
+
+function goIndex(){
+    switchPage('index');
+}
+
+function openDetail(id){
+    let item = galleryData.find(x=>x.id === id);
+    if(!item) return;
+    document.getElementById('detail-img').src = item.img || 'https://picsum.photos/seed/'+item.id+'/1200/600';
+    document.getElementById('detail-title').innerText = item.name;
+    document.getElementById('detail-cate').innerText = item.cate;
+    document.getElementById('detail-desc').innerText = item.desc;
+    switchPage('detail');
+}
+
+function login(){
+    let u = document.getElementById('admin-user').value;
+    let p = document.getElementById('admin-pwd').value;
+    if(u==='admin' && p==='123456'){
+        alert('登录成功！');
+        switchPage('admin');
+    }else{
+        alert('账号密码错误');
+    }
+}
+
+function previewImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        currentBase64 = e.target.result;
+        const preview = document.getElementById('preview');
+        preview.src = currentBase64;
+        preview.style.display = 'block';
+    }
+    reader.readAsDataURL(file);
+}
+
+function renderGallery(list=galleryData){
+    let html = '';
+    list.forEach(item=>{
+        let img = item.img || 'https://picsum.photos/seed/'+item.id+'/600/400';
+        html += `
+        <div class="gallery-card" onclick="openDetail(${item.id})">
+            <img src="${img}">
+            <div class="card-body">
+                <div class="card-title">${item.name}</div>
+                <div class="card-desc">${item.desc.substring(0,30)}...</div>
+                <span class="card-tag">${item.cate}</span>
+            </div>
+        </div>
+        `;
+    });
+    document.getElementById('gallery-list').innerHTML = html;
+}
+
+function searchGallery(){
+    let key = document.getElementById('key-word').value.trim();
+    let cate = document.getElementById('cate-select').value;
+    let res = galleryData.filter(item=>{
+        let b1 = item.name.includes(key) || item.desc.includes(key);
+        let b2 = cate==='all' || item.cate===cate;
+        return b1 && b2;
+    });
+    renderGallery(res);
+}
+
+function renderTable(){
+    let html = '';
+    galleryData.forEach(item=>{
+        html += `
+        <tr>
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.cate}</td>
+            <td>${item.desc.slice(0,30)}...</td>
+            <td>
+                <button class="oper-btn edit" onclick="editItem(${item.id})">编辑</button>
+                <button class="oper-btn del" onclick="delItem(${item.id})">删除</button>
+            </td>
+        </tr>
+        `;
+    });
+    document.getElementById('table-body').innerHTML = html;
+}
+
+function countStat(){
+    document.getElementById('total-num').innerText = galleryData.length;
+}
+
+function openAddPopup(){
+    editId = 0;
+    currentBase64 = "";
+    document.getElementById('popup-title').innerText = '新增藏品';
+    document.getElementById('col-name').value = '';
+    document.getElementById('col-desc').value = '';
+    document.getElementById('col-img-file').value = '';
+    document.getElementById('preview').style.display = 'none';
+    document.getElementById('popup-mask').style.display = 'flex';
+}
+
+function closePopup(){
+    document.getElementById('popup-mask').style.display = 'none';
+}
+
+function saveData(){
+    let name = document.getElementById('col-name').value.trim();
+    let cate = document.getElementById('col-cate').value;
+    let desc = document.getElementById('col-desc').value.trim();
+    if(!name || !desc){
+        alert('请完善藏品名称和简介');
+        return;
+    }
+    if(editId === 0){
+        let newId = Date.now();
+        galleryData.push({id:newId,name,cate,desc,img:currentBase64});
+    }else{
+        let idx = galleryData.findIndex(x=>x.id===editId);
+        galleryData[idx] = {
+            ...galleryData[idx],
+            name,cate,desc,
+            img: currentBase64 || galleryData[idx].img
+        };
+    }
+    localStorage.setItem('museumData', JSON.stringify(galleryData));
+    closePopup();
+    renderTable();
+    renderGallery();
+    countStat();
+    alert('保存成功！');
+}
+
+function editItem(id){
+    editId = id;
+    let item = galleryData.find(x=>x.id===id);
+    document.getElementById('popup-title').innerText = '编辑藏品';
+    document.getElementById('col-name').value = item.name;
+    document.getElementById('col-cate').value = item.cate;
+    document.getElementById('col-desc').value = item.desc;
+    currentBase64 = item.img;
+    document.getElementById('col-img-file').value = '';
+    let prev = document.getElementById('preview');
+    if(item.img){
+        prev.src = item.img;
+        prev.style.display = 'block';
+    }else{
+        prev.style.display = 'none';
+    }
+    document.getElementById('popup-mask').style.display = 'flex';
+}
+
+function delItem(id){
+    if(!confirm('确定删除该藏品？')) return;
+    galleryData = galleryData.filter(x=>x.id!==id);
+    localStorage.setItem('museumData', JSON.stringify(galleryData));
+    renderTable();
+    renderGallery();
+    countStat();
+}
+
+window.onload = function(){
+    switchPage('index');
+}
+</script>
+</body>
+</html>
